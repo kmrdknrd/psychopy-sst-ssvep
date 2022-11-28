@@ -2,16 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from makenoise import makenoise
-from makegabor import makegabor
-from makeannulus import makeannulus
-# from makefixation import makefixation
+from makenoise import *
+from makegabor import *
+from makeannulus import *
+# from makefixation import *
 
-np.random.seed(1999)
-def single_trial(
-    image_size = 1024, ref_rate_hz = 120, my_dpi = 192, snr = 0.333,
-    stop_trial = True, only_noise_ms = 60, SSD_ms = 60, trial_length_ms = 180,
-    noise_static = False, gabor_static = False, annulus_static = False,
+
+def singletrial(
+    image_size = 1024, ref_rate_hz = 120, my_dpi = 192, stim_dir = "stimuli",
+    snr = 0.333, stop_trial = True, only_noise_ms = 60, SSD_ms = 60,
+    trial_length_ms = 180,
+    # noise_static = False, gabor_static = False, annulus_static = False,
     noise_freq_hz = 20, gabor_freq_hz = 24, ann_freq_hz = 30
     ):
 
@@ -49,13 +50,32 @@ def single_trial(
 
     #turn component frequencies into frame lengths
     component_lengths = ref_rate_hz / np.array([noise_freq_hz, gabor_freq_hz, ann_freq_hz])
-    noise_frame_length, gabor_frame_length, ann_frame_length = tuple([int(comp) for comp in component_lengths])
+    print(
+        """
+        Noise frame length: {0}
+        Gabor frame length: {1}
+        Annulus frame length: {2}
+        """.format(*component_lengths)
+        )
 
+    if(np.any(component_lengths % 1 != 0)):
+        raise ValueError(
+            """
+            Frame lengths must be integers.
+            Your component frequencies don't divide your refresh rate.
+            """
+            )
+
+    noise_frame_length, gabor_frame_length, ann_frame_length = tuple([int(comp) for comp in component_lengths])
 
     #calculate how many frames noise / + gabor / + annulus
     noise_frames = int(only_noise_ms/1000 * ref_rate_hz)
-    gabor_frames = int(SSD_ms/1000 * ref_rate_hz)
-    ann_frames = int(trial_length_ms/1000 * ref_rate_hz) - gabor_frames
+    if stop_trial:
+        gabor_frames = int(SSD_ms/1000 * ref_rate_hz)
+        ann_frames = int(trial_length_ms/1000 * ref_rate_hz) - gabor_frames
+    else:
+        gabor_frames = int(trial_length_ms/1000 * ref_rate_hz)
+        ann_frames = 0
 
 
     #generate images for single trial
@@ -72,7 +92,7 @@ def single_trial(
             new_image = True
 
         if new_image:
-            filename = "stimuli/trial_image_" + str(image_counter) + ".png"
+            filename = stim_dir + "/trial_image_" + str(image_counter) + ".png"
             plotter(noise_values, filename)
 
             image_counter += 1
@@ -85,11 +105,10 @@ def single_trial(
 
         noise_counter += 1
 
-        if noise_counter == 6: noise_counter = 0 
+        if noise_counter == noise_frame_length: noise_counter = 0 
 
     #add gabor
     gabor_values = makegabor() * signal_ratio * 2
-
     for i in range(gabor_frames):
         if noise_counter == 0:
             noise_values = (makenoise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
@@ -100,7 +119,7 @@ def single_trial(
             new_image = True
 
         if new_image:
-            filename = "stimuli/trial_image_" + str(image_counter) + ".png"
+            filename = stim_dir + "/trial_image_" + str(image_counter) + ".png"
             plotter(noise_values + gabor_values*gabor_on, filename)
 
             image_counter += 1
@@ -114,30 +133,26 @@ def single_trial(
         noise_counter += 1
         gabor_counter += 1
 
-        if noise_counter == 6: noise_counter = 0 
-        if gabor_counter == 5: gabor_counter = 0 
+        if noise_counter == noise_frame_length: noise_counter = 0 
+        if gabor_counter == gabor_frame_length: gabor_counter = 0 
 
     #add annulus
     ann_values = makeannulus() * signal_ratio * 2
-
     for i in range(ann_frames):
         if noise_counter == 0:
             noise_values = (makenoise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
             new_image = True
-            print("noise")
 
         if gabor_counter == 0:
             gabor_on = -gabor_on + 1
             new_image = True
-            print("gabor")
 
         if ann_counter == 0:
             ann_on = -ann_on + 1
             new_image = True
-            print("ann")
 
         if new_image:
-            filename = "stimuli/trial_image_" + str(image_counter) + ".png"
+            filename = stim_dir + "/trial_image_" + str(image_counter) + ".png"
             plotter(noise_values + gabor_values*gabor_on + ann_values*ann_on, filename)
 
             image_counter += 1
@@ -152,14 +167,16 @@ def single_trial(
         gabor_counter += 1
         ann_counter += 1
 
-        if noise_counter == 6: noise_counter = 0 
-        if gabor_counter == 5: gabor_counter = 0 
-        if ann_counter == 4: ann_counter = 0 
+        if noise_counter == noise_frame_length: noise_counter = 0 
+        if gabor_counter == gabor_frame_length: gabor_counter = 0 
+        if ann_counter == ann_frame_length: ann_counter = 0 
 
     frame_lengths_arr = np.append(frame_lengths_arr, frame_length)[2:]
     frame_lengths_arr = [int(i) for i in frame_lengths_arr]
 
     return frame_lengths_arr
+
+
 
 def exceler(frame_lengths, file_path):
 
