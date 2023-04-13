@@ -4,12 +4,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def makegabor(radius_cm = 10, gabor_size_cm = 6, rotation_deg = 45, gabor_freq_cm = 5, plot = False):
-
-    # change depending on device
-    screen_width_px = 1512
-    screen_height_px = 982
-    diagonal_cm = 36.068
+def make_gabor(radius_cm = 16.78, gabor_size_cm = 10.07, rotation_deg = 45, gabor_freq_cm = 2.98, plot = False,
+               screen_width_px = 2560, screen_height_px = 1440, diagonal_cm = 68.58):
 
     # pixels per centimeter
     ppcm = np.sqrt(screen_width_px**2 + screen_height_px**2) / diagonal_cm

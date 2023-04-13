@@ -1,17 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import scipy.stats as stats
 
-from makenoise import *
-from makegabor import *
-from makeannulus import *
-# from makefixation import *
+from make_noise import *
+from make_gabor import *
+from make_annulus import *
+# from make_fixation import *
 
 
-def singletrial(
-    image_size = 1024, ref_rate_hz = 120, my_dpi = 192, stim_dir = "stimuli",
-    snr = 0.333, stop_trial = True, only_noise_ms = 60, SSD_ms = 60,
-    trial_length_ms = 180,
+def single_trial(
+    screen_width_px = 2560, screen_height_px = 1440, diagonal_cm = 68.58,
+    image_size = 1024, ref_rate_hz = 120, my_dpi = 109, stim_dir = "stimuli",
+    snr = 1/3, stop_trial = True,
+    only_noise_ms = 500, SSD_ms = 250, trial_length_ms = 2000,
+    rotation_deg = 45, gabor_freq_cm = 2.98,
     # noise_static = False, gabor_static = False, annulus_static = False,
     noise_freq_hz = 20, gabor_freq_hz = 24, ann_freq_hz = 30
     ):
@@ -35,15 +38,15 @@ def singletrial(
 
 
     # #test images
-    # noise_test = (makenoise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
+    # noise_test = (make_noise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
     # plotter(noise_test, "stimuli/noise_test.png")
 
-    # gabor_test = makegabor() * signal_ratio * 2
+    # gabor_test = make_gabor() * signal_ratio * 2
     # noise_gabor_test = noise_test + gabor_test
     # plotter(noise_gabor_test, "stimuli/noise_gabor_test.png")
 
     # if stop_trial:
-    #     annulus_test = makeannulus() * signal_ratio * 2
+    #     annulus_test = make_annulus() * signal_ratio * 2
     #     noise_gabor_annulus_test = noise_gabor_test + annulus_test
     #     plotter(noise_gabor_annulus_test, "stimuli/noise_gabor_annulus_test.png")
 
@@ -52,9 +55,10 @@ def singletrial(
     component_lengths = ref_rate_hz / np.array([noise_freq_hz, gabor_freq_hz, ann_freq_hz])
     print(
         """
-        Noise frame length: {0}
-        Gabor frame length: {1}
-        Annulus frame length: {2}
+        Length in frames:
+            Noise - {0}
+            Gabor - {1}
+            Annulus - {2}
         """.format(*component_lengths)
         )
 
@@ -88,7 +92,9 @@ def singletrial(
     #only noise
     for i in range(noise_frames):
         if noise_counter == 0:
-            noise_values = (makenoise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
+            noise_values = (make_noise(screen_width_px = screen_width_px,
+                                       screen_height_px = screen_height_px,
+                                       diagonal_cm = diagonal_cm) - 0.25) * 2*noise_ratio + 0.5*signal_ratio
             new_image = True
 
         if new_image:
@@ -108,10 +114,16 @@ def singletrial(
         if noise_counter == noise_frame_length: noise_counter = 0 
 
     #add gabor
-    gabor_values = makegabor() * signal_ratio * 2
+    gabor_values = make_gabor(rotation_deg = rotation_deg,
+                              gabor_freq_cm = gabor_freq_cm,
+                              screen_width_px = screen_width_px,
+                              screen_height_px = screen_height_px,
+                              diagonal_cm = diagonal_cm) * signal_ratio * 2
     for i in range(gabor_frames):
         if noise_counter == 0:
-            noise_values = (makenoise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
+            noise_values = (make_noise(screen_width_px = screen_width_px,
+                                       screen_height_px = screen_height_px,
+                                       diagonal_cm = diagonal_cm) - 0.25) * 2*noise_ratio + 0.5*signal_ratio
             new_image = True
 
         if gabor_counter == 0:
@@ -137,10 +149,14 @@ def singletrial(
         if gabor_counter == gabor_frame_length: gabor_counter = 0 
 
     #add annulus
-    ann_values = makeannulus() * signal_ratio * 2
+    ann_values = make_annulus(screen_width_px = screen_width_px,
+                              screen_height_px = screen_height_px,
+                              diagonal_cm = diagonal_cm) * signal_ratio * 2
     for i in range(ann_frames):
         if noise_counter == 0:
-            noise_values = (makenoise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
+            noise_values = (make_noise(screen_width_px = screen_width_px,
+                                       screen_height_px = screen_height_px,
+                                       diagonal_cm = diagonal_cm) - 0.25) * 2*noise_ratio + 0.5*signal_ratio
             new_image = True
 
         if gabor_counter == 0:
@@ -174,7 +190,7 @@ def singletrial(
     frame_lengths_arr = np.append(frame_lengths_arr, frame_length)[2:]
     frame_lengths_arr = [int(i) for i in frame_lengths_arr]
 
-    return frame_lengths_arr
+    return frame_lengths_arr, noise_frames, gabor_frames, ann_frames
 
 
 

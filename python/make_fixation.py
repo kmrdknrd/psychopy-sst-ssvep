@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def makefixation(radius_cm = 10, fixation_cm = 0.2, plot = False):
+def make_fixation(radius_cm = 10, fixation_cm = 0.2, plot = False):
 
     # change depending on device
     screen_width_px = 1512
@@ -19,7 +19,7 @@ def makefixation(radius_cm = 10, fixation_cm = 0.2, plot = False):
     fix = round(fixation_cm*ppcm)
 
     image_px = 2*radius
-    fix_mat = np.ones((image_px, image_px))
+    fix_mat = np.zeros((image_px, image_px))
 
     # make fixation matrix circular
     xc = np.empty((image_px,image_px))
@@ -30,8 +30,8 @@ def makefixation(radius_cm = 10, fixation_cm = 0.2, plot = False):
     z = np.sqrt((xc-radius)**2 + (yc-radius)**2)
     fix_mat[z > radius] = np.nan
 
-    # make fixation point
-    fix_mat[z < fix] = -1
+    # # make fixation point
+    # fix_mat[z < fix] = 
 
     # plot
     if plot == True:
