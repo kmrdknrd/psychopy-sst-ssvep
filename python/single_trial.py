@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import scipy.stats as stats
 
 from make_noise import *
 from make_gabor import *
@@ -10,11 +9,9 @@ from make_annulus import *
 
 
 def single_trial(
-    screen_width_px = 2560, screen_height_px = 1440, diagonal_cm = 68.58,
     image_size = 1024, ref_rate_hz = 120, my_dpi = 109, stim_dir = "stimuli",
-    snr = 1/3, stop_trial = True,
-    only_noise_ms = 500, SSD_ms = 250, trial_length_ms = 2000,
-    rotation_deg = 45, gabor_freq_cm = 2.98,
+    snr = 1/3, stop_trial = True, only_noise_ms = 300, SSD_ms = 200,
+    trial_length_ms = 1000,
     # noise_static = False, gabor_static = False, annulus_static = False,
     noise_freq_hz = 20, gabor_freq_hz = 24, ann_freq_hz = 30
     ):
@@ -92,9 +89,7 @@ def single_trial(
     #only noise
     for i in range(noise_frames):
         if noise_counter == 0:
-            noise_values = (make_noise(screen_width_px = screen_width_px,
-                                       screen_height_px = screen_height_px,
-                                       diagonal_cm = diagonal_cm) - 0.25) * 2*noise_ratio + 0.5*signal_ratio
+            noise_values = (make_noise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
             new_image = True
 
         if new_image:
@@ -114,16 +109,10 @@ def single_trial(
         if noise_counter == noise_frame_length: noise_counter = 0 
 
     #add gabor
-    gabor_values = make_gabor(rotation_deg = rotation_deg,
-                              gabor_freq_cm = gabor_freq_cm,
-                              screen_width_px = screen_width_px,
-                              screen_height_px = screen_height_px,
-                              diagonal_cm = diagonal_cm) * signal_ratio * 2
+    gabor_values = make_gabor() * signal_ratio * 2
     for i in range(gabor_frames):
         if noise_counter == 0:
-            noise_values = (make_noise(screen_width_px = screen_width_px,
-                                       screen_height_px = screen_height_px,
-                                       diagonal_cm = diagonal_cm) - 0.25) * 2*noise_ratio + 0.5*signal_ratio
+            noise_values = (make_noise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
             new_image = True
 
         if gabor_counter == 0:
@@ -149,14 +138,10 @@ def single_trial(
         if gabor_counter == gabor_frame_length: gabor_counter = 0 
 
     #add annulus
-    ann_values = make_annulus(screen_width_px = screen_width_px,
-                              screen_height_px = screen_height_px,
-                              diagonal_cm = diagonal_cm) * signal_ratio * 2
+    ann_values = make_annulus() * signal_ratio * 2
     for i in range(ann_frames):
         if noise_counter == 0:
-            noise_values = (make_noise(screen_width_px = screen_width_px,
-                                       screen_height_px = screen_height_px,
-                                       diagonal_cm = diagonal_cm) - 0.25) * 2*noise_ratio + 0.5*signal_ratio
+            noise_values = (make_noise() - 0.25) * 2*noise_ratio + 0.5*signal_ratio
             new_image = True
 
         if gabor_counter == 0:

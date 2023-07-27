@@ -5,8 +5,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def make_annulus(radius_cm = 16.78, ann_dist_cm = 11.75, ann_width_cm = 1, alpha = 0.5, plot = False,
-                 screen_width_px = 2560, screen_height_px = 1440, diagonal_cm = 68.58):
+def make_annulus(radius_cm = 10, ann_dist_cm = 7, ann_width_cm = 1, alpha = 0.5, plot = False):
+
+    # change depending on device
+    screen_width_px = 1512
+    screen_height_px = 982
+    diagonal_cm = 36.068
 
     # pixels per centimeter
     ppcm = np.sqrt(screen_width_px**2 + screen_height_px**2) / diagonal_cm

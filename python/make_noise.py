@@ -4,8 +4,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def make_noise(radius_cm = 16.78, num_bands = 2, sd_pass_cm = 20, freq_bands_cm = [1, 5], plot=False,
-               screen_width_px = 2560, screen_height_px = 1440, diagonal_cm = 68.58):
+def make_noise(radius_cm = 10, num_bands = 2, sd_pass_cm = 20, freq_bands_cm = [1, 5], plot=False):
+    
+    # change depending on device
+    screen_width_px = 1512
+    screen_height_px = 982
+    diagonal_cm = 36.068
 
     # pixels per centimeter
     ppcm = np.sqrt(screen_width_px**2 + screen_height_px**2) / diagonal_cm

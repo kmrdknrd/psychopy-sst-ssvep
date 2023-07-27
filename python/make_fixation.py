@@ -30,8 +30,8 @@ def make_fixation(radius_cm = 10, fixation_cm = 0.2, plot = False):
     z = np.sqrt((xc-radius)**2 + (yc-radius)**2)
     fix_mat[z > radius] = np.nan
 
-    # # make fixation point
-    # fix_mat[z < fix] = 
+    # make fixation point
+    fix_mat[z < fix] = 
 
     # plot
     if plot == True:
